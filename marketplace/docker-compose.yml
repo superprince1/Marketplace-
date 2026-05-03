@@ -1,0 +1,122 @@
+version: '3.8'
+
+# ============================================
+# MARKETPLACE DOCKER COMPOSE CONFIGURATION
+# ============================================
+# Services:
+#   - mongodb:    primary database
+#   - redis:      caching / session store
+#   - backend:    Node.js / Express API
+#   - nginx:      (optional) reverse proxy + static frontend (production)
+# ============================================
+
+services:
+  # ==================== MONGODB ====================
+  mongodb:
+    image: mongo:7.0
+    container_name: marketplace-mongodb
+    restart: unless-stopped
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: ${MONGO_ROOT_USER:-admin}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_ROOT_PASSWORD:-secret}
+      MONGO_INITDB_DATABASE: marketplace
+    volumes:
+      - mongodb_data:/data/db
+      - ./docker/mongodb/init.js:/docker-entrypoint-initdb.d/init.js:ro
+    ports:
+      - "27017:27017"
+    networks:
+      - marketplace-network
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+
+  # ==================== REDIS ====================
+  redis:
+    image: redis:7.2-alpine
+    container_name: marketplace-redis
+    restart: unless-stopped
+    command: redis-server --appendonly yes --requirepass ${REDIS_PASSWORD:-redissecret}
+    volumes:
+      - redis_data:/data
+    ports:
+      - "6379:6379"
+    networks:
+      - marketplace-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+
+  # ==================== BACKEND (NODE.JS) ====================
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+      target: ${NODE_ENV:-development}
+    container_name: marketplace-backend
+    restart: unless-stopped
+    env_file:
+      - ./backend/.env
+    environment:
+      - NODE_ENV=${NODE_ENV:-development}
+      - MONGO_URI=mongodb://${MONGO_ROOT_USER:-admin}:${MONGO_ROOT_PASSWORD:-secret}@mongodb:27017/marketplace?authSource=admin
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - REDIS_PASSWORD=${REDIS_PASSWORD:-redissecret}
+      - CLIENT_URL=${CLIENT_URL:-http://localhost}
+    volumes:
+      - ./backend:/app
+      - /app/node_modules
+    ports:
+      - "5000:5000"
+    depends_on:
+      mongodb:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - marketplace-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5000/health"]
+      interval: 40s
+      timeout: 10s
+      retries: 5
+
+  # ==================== NGINX (OPTIONAL, PRODUCTION) ====================
+  # Uncomment this block if you want a reverse proxy + static frontend server.
+  # For development, you can comment it out and use separate frontend dev server.
+  # nginx:
+  #   image: nginx:alpine
+  #   container_name: marketplace-nginx
+  #   restart: unless-stopped
+  #   volumes:
+  #     - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+  #     - ./frontend/build:/usr/share/nginx/html:ro
+  #   ports:
+  #     - "80:80"
+  #     - "443:443"
+  #   depends_on:
+  #     - backend
+  #   networks:
+  #     - marketplace-network
+  #   healthcheck:
+  #     test: ["CMD", "nginx", "-t"]
+  #     interval: 30s
+  #     timeout: 10s
+  #     retries: 5
+
+# ==================== VOLUMES ====================
+volumes:
+  mongodb_data:
+    driver: local
+  redis_data:
+    driver: local
+
+# ==================== NETWORKS ====================
+networks:
+  marketplace-network:
+    driver: bridge
