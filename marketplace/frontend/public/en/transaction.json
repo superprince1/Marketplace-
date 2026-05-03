@@ -1,0 +1,26 @@
+{
+  "nav": {
+    "home": "Home",
+    "products": "Products",
+    "cart": "Cart",
+    "login": "Login",
+    "register": "Register",
+    "account": "My Account",
+    "logout": "Logout"
+  },
+  "cart": {
+    "empty": "Your cart is empty.",
+    "subtotal": "Subtotal",
+    "shipping": "Shipping",
+    "tax": "Tax",
+    "total": "Total",
+    "checkout": "Proceed to Checkout"
+  },
+  "product": {
+    "addToCart": "Add to Cart",
+    "outOfStock": "Out of Stock",
+    "quantity": "Quantity",
+    "description": "Description",
+    "reviews": "Reviews"
+  }
+}
