@@ -1,0 +1,60 @@
+{
+  "name": "marketplace-frontend",
+  "version": "1.0.0",
+  "description": "React frontend for marketplace with multi‑language, A/B testing, advanced cart, and responsive design.",
+  "private": true,
+  "dependencies": {
+    "@stripe/stripe-js": "^3.3.0",
+    "@stripe/react-stripe-js": "^2.7.0",
+    "axios": "^1.6.8",
+    "date-fns": "^3.6.0",
+    "i18next": "^23.11.3",
+    "i18next-browser-languagedetector": "^8.0.0",
+    "i18next-http-backend": "^2.5.1",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "react-ga4": "^2.1.0",
+    "react-helmet-async": "^2.0.5",
+    "react-i18next": "^14.1.0",
+    "react-router-dom": "^6.23.0",
+    "react-scripts": "5.0.1",
+    "react-share": "^5.1.0",
+    "socket.io-client": "^4.7.5",
+    "web-vitals": "^3.5.2"
+  },
+  "scripts": {
+    "start": "react-scripts start",
+    "build": "react-scripts build",
+    "test": "react-scripts test",
+    "eject": "react-scripts eject",
+    "analyze": "source-map-explorer 'build/static/js/*.js'",
+    "lint": "eslint src",
+    "format": "prettier --write src"
+  },
+  "eslintConfig": {
+    "extends": [
+      "react-app"
+    ]
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
+  },
+  "devDependencies": {
+    "@testing-library/jest-dom": "^6.4.5",
+    "@testing-library/react": "^14.3.1",
+    "@testing-library/user-event": "^14.5.2",
+    "eslint": "^8.57.0",
+    "eslint-plugin-react": "^7.34.1",
+    "prettier": "^3.2.5",
+    "source-map-explorer": "^2.5.3"
+  }
+}
